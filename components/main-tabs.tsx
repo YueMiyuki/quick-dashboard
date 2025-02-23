@@ -17,7 +17,6 @@ export default function MainTabs({
   initialNotes,
   initialFiles,
   userId,
-  username,
 }: MainTabsProps) {
   return (
     <Tabs defaultValue="notes" className="w-full">
