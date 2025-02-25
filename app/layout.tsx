@@ -1,4 +1,5 @@
 import type React from "react"
+import Link from "next/link"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -27,7 +28,9 @@ export default function RootLayout({
           <AuthProvider>
             <div className="min-h-screen flex flex-col">
               <header className="container mx-auto p-4 flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Research Team Portal</h1>
+                <h1 className="text-2xl font-bold">
+                  <Link href="/">Research Team Portal</Link>
+                </h1>
                 <div className="flex items-center space-x-2">
                   <UserSettingsButton />
                   <LogoutButton />

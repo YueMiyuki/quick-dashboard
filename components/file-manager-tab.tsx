@@ -102,7 +102,7 @@ export default function FileManagerTab({
               </CardContent>
               <CardFooter className="flex gap-2">
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <a href={file.path} download>
+                  <a href={'/api/files/' + file.id} download>
                     <DownloadIcon className="h-4 w-4 mr-2" />
                     Download
                   </a>

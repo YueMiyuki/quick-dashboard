@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { writeFile } from "fs/promises";
+import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { prisma } from "@/lib/prisma";
 
@@ -22,13 +22,16 @@ export async function POST(req: Request) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const filePath = path.join(process.cwd(), "public", "uploads", file.name);
+  const uploadDir = path.join(process.cwd(), "data", "uploads");
+  await mkdir(uploadDir, { recursive: true });
+
+  const filePath = path.join(uploadDir, file.name);
   await writeFile(filePath, buffer);
 
   const fileRecord = await prisma.file.create({
     data: {
       name: file.name,
-      path: `/uploads/${file.name}`,
+      path: file.name, 
       userId: session.user.id,
     },
     include: {
