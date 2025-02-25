@@ -44,6 +44,7 @@ export default function SettingsPage() {
         toast.error(data.message || "Failed to update user settings")
       }
     } catch (error) {
+      console.log(error)
       toast.error("An error occurred while updating user settings")
     }
   }
