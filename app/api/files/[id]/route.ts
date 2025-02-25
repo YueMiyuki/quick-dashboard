@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
@@ -6,8 +6,8 @@ import path from "path"
 import { unlink } from "fs/promises"
 
 export async function DELETE(
-  req: Request,
-  context: { params: { [key: string]: string | string[] } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions)
 
@@ -15,18 +15,11 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const { id } = context.params
-
-  if (typeof id !== "string") {
-    return NextResponse.json(
-      { error: "Invalid file ID format" },
-      { status: 400 }
-    )
-  }
+  const { id } = await params
 
   try {
     const file = await prisma.file.findUnique({
-      where: { id: id },
+      where: { id },
     })
 
     if (!file) {
@@ -42,7 +35,7 @@ export async function DELETE(
     await unlink(filePath)
 
     await prisma.file.delete({
-      where: { id: id },
+      where: { id },
     })
 
     return NextResponse.json({ message: "File deleted successfully" })
