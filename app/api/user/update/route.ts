@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { hash } from "bcrypt"
-
-const prisma = new PrismaClient()
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
@@ -51,8 +49,5 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error updating user settings:", error)
     return NextResponse.json({ message: "Failed to update user settings" }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }
-
