@@ -31,7 +31,7 @@ export async function DELETE(
     }
 
     // Delete file from filesystem
-    const filePath = path.join(process.cwd(), "public", file.path);
+    const filePath = path.join(process.cwd(), "data", "uploads", file.path);
     await unlink(filePath);
 
     await prisma.file.delete({
