@@ -4,11 +4,10 @@ const nextConfig: NextConfig = {
   webpack: (config, context) => {
     // Add database directory to ignored watch paths
     config.watchOptions = {
-      ...config.watchOptions,
       ignored: [
-        '**/node_modules/**',
-        '**/.next/**',
-        '../data/**',
+        '/node_modules/**',
+        '/.next/**',
+        '/data/**',
       ]
     };
     return config;
