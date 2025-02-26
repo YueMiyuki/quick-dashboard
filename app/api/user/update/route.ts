@@ -3,9 +3,10 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { hash } from "bcrypt"
+import type { NextAuthOptions } from "next-auth"
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions as NextAuthOptions)
 
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
     }
 
     const updates: { username?: string; password?: string } = {}
+    let shouldInvalidate = false
 
     if (newUsername) {
       const existingUser = await prisma.user.findUnique({
@@ -34,18 +36,36 @@ export async function POST(req: Request) {
       }
 
       updates.username = newUsername
+      shouldInvalidate = true
     }
 
     if (newPassword) {
       updates.password = await hash(newPassword, 12)
+      shouldInvalidate = true
     }
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: updates,
+    if (Object.keys(updates).length > 0) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: updates,
+      })
+    }
+
+    const response = NextResponse.json({ 
+      message: "User settings updated successfully",
+      shouldInvalidate
     })
 
-    return NextResponse.json({ message: "User settings updated successfully" })
+    // Clear session cookie if credentials changed
+    if (shouldInvalidate) {
+      response.headers.set(
+        'Set-Cookie', 
+        `next-auth.session-token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`
+      )
+    }
+
+    return response
+
   } catch (error) {
     console.error("Error updating user settings:", error)
     return NextResponse.json({ message: "Failed to update user settings" }, { status: 500 })

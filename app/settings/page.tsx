@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,7 +13,7 @@ export default function SettingsPage() {
   const [newUsername, setNewUsername] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const { data: session, update } = useSession()
+  const { data: session } = useSession()
   const router = useRouter()
 
   useEffect(() => {
@@ -50,10 +50,15 @@ export default function SettingsPage() {
       
       if (response.ok) {
         toast.success("Settings updated successfully")
-        if (newUsername !== currentUsername) {
-          await update({ username: newUsername })
+        
+        if (data.shouldInvalidate) {
+          // Sign out and redirect if credentials changed
+          await signOut({ redirect: false })
+          router.push("/")
+          window.location.reload()
+        } else {
+          router.push("/dashboard")
         }
-        router.push("/dashboard")
       } else {
         toast.error(data.message || "Failed to update settings")
       }
